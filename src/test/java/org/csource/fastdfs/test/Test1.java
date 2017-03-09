@@ -15,9 +15,9 @@ public class Test1 {
             TrackerGroup tg = new TrackerGroup(new InetSocketAddress[]{new InetSocketAddress("192.168.0.196", 22122)});
             TrackerClient tc = new TrackerClient(tg);
 
-            TrackerServer ts = tc.getConnection();
+            TrackerServer ts = tc.getTrackerServer();
             if (ts == null) {
-                System.out.println("getConnection return null");
+                System.out.println("getTrackerServer return null");
                 return;
             }
 

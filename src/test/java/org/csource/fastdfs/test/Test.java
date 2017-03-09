@@ -44,7 +44,7 @@ public class Test {
             System.out.println("charset=" + ClientGlobal.G_CHARSET);
 
             TrackerClient tracker = new TrackerClient();
-            TrackerServer trackerServer = tracker.getConnection();
+            TrackerServer trackerServer = tracker.getTrackerServer();
             StorageServer storageServer = null;
             StorageClient1 client = new StorageClient1(trackerServer, storageServer);
 

@@ -51,7 +51,7 @@ public class TestAppender {
             String remote_filename;
             ServerInfo[] servers;
             TrackerClient tracker = new TrackerClient();
-            TrackerServer trackerServer = tracker.getConnection();
+            TrackerServer trackerServer = tracker.getTrackerServer();
 
             StorageServer storageServer = null;
 
@@ -82,7 +82,7 @@ public class TestAppender {
             System.out.println("file length: " + file_buff.length);
 
             group_name = null;
-            StorageServer[] storageServers = tracker.getStoreStorages(trackerServer, group_name);
+            StorageServer[] storageServers = tracker.getStoreStorageList(trackerServer, group_name);
             if (storageServers == null) {
                 System.err.println("get store storage servers fail, error code: " + tracker.getErrorCode());
             } else {
@@ -110,7 +110,7 @@ public class TestAppender {
                 System.err.println("group_name: " + group_name + ", remote_filename: " + remote_filename);
                 System.err.println(client.get_file_info(group_name, remote_filename));
 
-                servers = tracker.getFetchStorages(trackerServer, group_name, remote_filename);
+                servers = tracker.getFetchServerInfoList(trackerServer, group_name, remote_filename);
                 if (servers == null) {
                     System.err.println("get storage servers fail, error code: " + tracker.getErrorCode());
                 } else {

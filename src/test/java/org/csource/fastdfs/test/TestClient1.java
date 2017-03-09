@@ -50,7 +50,7 @@ public class TestClient1 {
             String file_id;
 
             TrackerClient tracker = new TrackerClient();
-            TrackerServer trackerServer = tracker.getConnection();
+            TrackerServer trackerServer = tracker.getTrackerServer();
 
             StorageServer storageServer = null;
           /*
@@ -72,7 +72,7 @@ public class TestClient1 {
             int errno;
 
             group_name = "group1";
-            StorageServer[] storageServers = tracker.getStoreStorages(trackerServer, group_name);
+            StorageServer[] storageServers = tracker.getStoreStorageList(trackerServer, group_name);
             if (storageServers == null) {
                 System.err.println("get store storage servers fail, error code: " + tracker.getErrorCode());
             } else {

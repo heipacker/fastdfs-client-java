@@ -12,7 +12,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * ini file reader / parser
@@ -21,7 +23,9 @@ import java.util.Hashtable;
  * @version Version 1.0
  */
 public class IniFileReader {
-    private Hashtable paramTable;
+
+    private Map<String, Object> configMap = new HashMap<String, Object>();
+    ;
     private String confFilename;
 
     /**
@@ -38,7 +42,7 @@ public class IniFileReader {
      * @return config filename
      */
     public String getConfFilename() {
-        return this.confFilename;
+        return confFilename;
     }
 
     /**
@@ -48,33 +52,29 @@ public class IniFileReader {
      * @return string value
      */
     public String getStrValue(String name) {
-        Object obj;
-        obj = this.paramTable.get(name);
-        if (obj == null) {
+        Object value = this.configMap.get(name);
+        if (value == null) {
             return null;
         }
-
-        if (obj instanceof String) {
-            return (String) obj;
+        if (value instanceof String) {
+            return (String) value;
         }
-
-        return (String) ((ArrayList) obj).get(0);
+        return ((List<String>) value).get(0);
     }
 
     /**
      * get int value from config file
      *
-     * @param name          item name in config file
-     * @param default_value the default value
+     * @param name         item name in config file
+     * @param defaultValue the default value
      * @return int value
      */
-    public int getIntValue(String name, int default_value) {
-        String szValue = this.getStrValue(name);
-        if (szValue == null) {
-            return default_value;
+    public int getIntValue(String name, int defaultValue) {
+        String value = getStrValue(name);
+        if (value == null) {
+            return defaultValue;
         }
-
-        return Integer.parseInt(szValue);
+        return Integer.parseInt(value);
     }
 
     /**
@@ -85,13 +85,12 @@ public class IniFileReader {
      * @return boolean value
      */
     public boolean getBoolValue(String name, boolean default_value) {
-        String szValue = this.getStrValue(name);
-        if (szValue == null) {
+        String value = this.getStrValue(name);
+        if (value == null) {
             return default_value;
         }
-
-        return szValue.equalsIgnoreCase("yes") || szValue.equalsIgnoreCase("on") ||
-                szValue.equalsIgnoreCase("true") || szValue.equals("1");
+        value = value.toLowerCase();
+        return value.equals("yes") || value.equals("on") || value.equals("true") || value.equals("1");
     }
 
     /**
@@ -101,70 +100,52 @@ public class IniFileReader {
      * @return string values (array)
      */
     public String[] getValues(String name) {
-        Object obj;
-        String[] values;
-
-        obj = this.paramTable.get(name);
-        if (obj == null) {
+        Object value = this.configMap.get(name);
+        if (value == null) {
             return null;
         }
-
-        if (obj instanceof String) {
+        String[] values;
+        if (value instanceof String) {
             values = new String[1];
-            values[0] = (String) obj;
+            values[0] = (String) value;
             return values;
         }
 
-        Object[] objs = ((ArrayList) obj).toArray();
-        values = new String[objs.length];
-        System.arraycopy(objs, 0, values, 0, objs.length);
+        Object[] objects = ((List<String>) value).toArray();
+        values = new String[objects.length];
+        System.arraycopy(objects, 0, values, 0, objects.length);
         return values;
     }
 
-    private void loadFromFile(String conf_filename) throws IOException {
-        FileReader fReader;
-        BufferedReader buffReader;
-        String line;
-        String[] parts;
-        String name;
-        String value;
-        Object obj;
-        ArrayList valueList;
-
-        fReader = new FileReader(conf_filename);
-        buffReader = new BufferedReader(fReader);
-        this.paramTable = new Hashtable();
-
+    private void loadFromFile(String confFilename) throws IOException {
+        BufferedReader buffReader = new BufferedReader(new FileReader(confFilename));
         try {
+            String line;
             while ((line = buffReader.readLine()) != null) {
-                line = line.trim();
-                if (line.length() == 0 || line.charAt(0) == '#') {
+                if (line.length() == 0 || line.trim().startsWith("#")) {
                     continue;
                 }
-
-                parts = line.split("=", 2);
+                String[] parts = line.split("=", 2);
                 if (parts.length != 2) {
                     continue;
                 }
-
-                name = parts[0].trim();
-                value = parts[1].trim();
-
-                obj = this.paramTable.get(name);
+                String name = parts[0].trim();
+                String value = parts[1].trim();
+                Object obj = configMap.get(name);
                 if (obj == null) {
-                    this.paramTable.put(name, value);
+                    configMap.put(name, value);
                 } else if (obj instanceof String) {
-                    valueList = new ArrayList();
-                    valueList.add(obj);
+                    List<String> valueList = new ArrayList<String>();
+                    valueList.add((String) obj);
                     valueList.add(value);
-                    this.paramTable.put(name, valueList);
+                    configMap.put(name, valueList);
                 } else {
-                    valueList = (ArrayList) obj;
+                    List<String> valueList = (ArrayList<String>) obj;
                     valueList.add(value);
                 }
             }
         } finally {
-            fReader.close();
+            buffReader.close();
         }
     }
 }

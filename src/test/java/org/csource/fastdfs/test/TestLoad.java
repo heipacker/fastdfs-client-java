@@ -49,7 +49,7 @@ public class TestLoad {
 
         public Uploader() throws Exception {
             this.tracker = new TrackerClient();
-            this.trackerServer = tracker.getConnection();
+            this.trackerServer = tracker.getTrackerServer();
         }
 
         public int uploadFile() throws Exception {
@@ -89,7 +89,7 @@ public class TestLoad {
 
         public Downloader() throws Exception {
             this.tracker = new TrackerClient();
-            this.trackerServer = tracker.getConnection();
+            this.trackerServer = tracker.getTrackerServer();
             this.callback = new DownloadFileDiscard();
         }
 

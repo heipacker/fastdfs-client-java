@@ -46,7 +46,7 @@ public class Monitor {
   		System.out.println("delete storage errno: " + tracker.getErrorCode());
   		*/
 
-            TrackerServer trackerServer = tracker.getConnection();
+            TrackerServer trackerServer = tracker.getTrackerServer();
             if (trackerServer == null) {
                 return;
             }

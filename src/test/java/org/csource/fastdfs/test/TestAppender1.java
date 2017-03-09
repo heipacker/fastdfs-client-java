@@ -49,7 +49,7 @@ public class TestAppender1 {
             long startTime;
             ServerInfo[] servers;
             TrackerClient tracker = new TrackerClient();
-            TrackerServer trackerServer = tracker.getConnection();
+            TrackerServer trackerServer = tracker.getTrackerServer();
 
             StorageServer storageServer = null;
 
@@ -80,7 +80,7 @@ public class TestAppender1 {
             System.out.println("file length: " + file_buff.length);
 
             group_name = null;
-            StorageServer[] storageServers = tracker.getStoreStorages(trackerServer, group_name);
+            StorageServer[] storageServers = tracker.getStoreStorageList(trackerServer, group_name);
             if (storageServers == null) {
                 System.err.println("get store storage servers fail, error code: " + tracker.getErrorCode());
             } else {

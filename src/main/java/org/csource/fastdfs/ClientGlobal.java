@@ -39,14 +39,12 @@ public class ClientGlobal {
     /**
      * load global variables
      *
-     * @param conf_filename config filename
+     * @param confFilename config filename
      */
-    public static void init(String conf_filename) throws IOException, FastDFSClientException {
-        IniFileReader iniReader;
+    public static void init(String confFilename) throws IOException, FastDFSClientException {
+        IniFileReader iniReader = new IniFileReader(confFilename);
         String[] szTrackerServers;
         String[] parts;
-
-        iniReader = new IniFileReader(conf_filename);
 
         G_CONNECT_TIMEOUT = iniReader.getIntValue("connect_timeout", DEFAULT_CONNECT_TIMEOUT);
         if (G_CONNECT_TIMEOUT < 0) {
@@ -67,12 +65,12 @@ public class ClientGlobal {
 
         szTrackerServers = iniReader.getValues("tracker_server");
         if (szTrackerServers == null) {
-            throw new FastDFSClientException("item \"tracker_server\" in " + conf_filename + " not found");
+            throw new FastDFSClientException("item \"tracker_server\" in " + confFilename + " not found");
         }
 
         InetSocketAddress[] tracker_servers = new InetSocketAddress[szTrackerServers.length];
         for (int i = 0; i < szTrackerServers.length; i++) {
-            parts = szTrackerServers[i].split("\\:", 2);
+            parts = szTrackerServers[i].split(":", 2);
             if (parts.length != 2) {
                 throw new FastDFSClientException("the value of item \"tracker_server\" is invalid, the correct format is host:port");
             }

@@ -22,17 +22,17 @@ import java.net.Socket;
  * @version Version 1.11
  */
 public class TrackerServer implements Closeable {
-    protected Socket sock;
-    protected InetSocketAddress inetSocketAddress;
+    private Socket socket;
+    private InetSocketAddress inetSocketAddress;
 
     /**
      * Constructor
      *
-     * @param sock              Socket of server
+     * @param socket            Socket of server
      * @param inetSocketAddress the server info
      */
-    public TrackerServer(Socket sock, InetSocketAddress inetSocketAddress) {
-        this.sock = sock;
+    public TrackerServer(Socket socket, InetSocketAddress inetSocketAddress) {
+        this.socket = socket;
         this.inetSocketAddress = inetSocketAddress;
     }
 
@@ -42,11 +42,11 @@ public class TrackerServer implements Closeable {
      * @return the socket
      */
     public Socket getSocket() throws IOException {
-        if (this.sock == null) {
-            this.sock = ClientGlobal.getSocket(this.inetSocketAddress);
+        if (this.socket == null) {
+            this.socket = ClientGlobal.getSocket(this.inetSocketAddress);
         }
 
-        return this.sock;
+        return this.socket;
     }
 
     /**
@@ -59,19 +59,19 @@ public class TrackerServer implements Closeable {
     }
 
     public OutputStream getOutputStream() throws IOException {
-        return this.sock.getOutputStream();
+        return this.socket.getOutputStream();
     }
 
     public InputStream getInputStream() throws IOException {
-        return this.sock.getInputStream();
+        return this.socket.getInputStream();
     }
 
     public void close() throws IOException {
-        if (this.sock != null) {
+        if (this.socket != null) {
             try {
-                ProtoCommon.closeSocket(this.sock);
+                ProtoCommon.closeSocket(this.socket);
             } finally {
-                this.sock = null;
+                this.socket = null;
             }
         }
     }

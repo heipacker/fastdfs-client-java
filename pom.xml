@@ -56,4 +56,20 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <!-- Publish the versioned releases here -->
+        <repository>
+            <id>xlycc-internal-releases</id>
+            <name>Nexus for Xunlei YCC Dept. for releases</name>
+            <url>http://10.10.62.101:8081/nexus/content/repositories/releases/</url>
+        </repository>
+
+        <!-- Publish the versioned releases here -->
+        <snapshotRepository>
+            <id>xlycc-internal-snapshots</id>
+            <name>Nexus for Xunlei YCC Dept. for snapshots</name>
+            <url>http://10.10.62.101:8081/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>

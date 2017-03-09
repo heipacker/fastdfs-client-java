@@ -76,6 +76,15 @@ public class StorageClient {
      * constructor with tracker server and storage server
      *
      * @param trackerServer the tracker server, can be null
+     */
+    public StorageClient(TrackerServer trackerServer) {
+        this(trackerServer, null);
+    }
+
+    /**
+     * constructor with tracker server and storage server
+     *
+     * @param trackerServer the tracker server, can be null
      * @param storageServer the storage server, can be null
      */
     public StorageClient(TrackerServer trackerServer, StorageServer storageServer) {

@@ -16,6 +16,7 @@ import java.net.InetSocketAddress;
 
 /**
  * client test
+ *
  * @author Happy Fish / YuQing
  * @version Version 1.18
  */
@@ -25,9 +26,10 @@ public class TestClient {
 
     /**
      * entry point
+     *
      * @param args comand arguments
-     *     <ul><li>args[0]: config filename</li></ul>
-     *     <ul><li>args[1]: local filename to upload</li></ul>
+     *             <ul><li>args[0]: config filename</li></ul>
+     *             <ul><li>args[1]: local filename to upload</li></ul>
      */
     public static void main(String args[]) {
         if (args.length < 2) {
@@ -50,21 +52,9 @@ public class TestClient {
             String group_name;
             String remote_filename;
             ServerInfo[] servers;
-            TrackerClient tracker = new TrackerClient();
-            TrackerServer trackerServer = tracker.getConnection();
-
-            StorageServer storageServer = null;
-
-  		/*
-  		storageServer = tracker.getStoreStorage(trackerServer);
-  		if (storageServer == null)
-  		{
-  			System.out.println("getStoreStorage fail, error code: " + tracker.getErrorCode());
-  			return;
-  		}
-  		*/
-
-            StorageClient storageClient = new StorageClient(trackerServer, storageServer);
+            TrackerClient trackerClient = new TrackerClient();
+            TrackerServer trackerServer = trackerClient.getTrackerServer();
+            StorageClient storageClient = new StorageClient(trackerServer, null);
             byte[] file_buff;
             NameValuePair[] meta_list;
             String[] results;
@@ -84,9 +74,9 @@ public class TestClient {
             System.out.println("file length: " + file_buff.length);
 
             group_name = null;
-            StorageServer[] storageServers = tracker.getStoreStorages(trackerServer, group_name);
+            StorageServer[] storageServers = trackerClient.getStoreStorageList(trackerServer, group_name);
             if (storageServers == null) {
-                System.err.println("get store storage servers fail, error code: " + tracker.getErrorCode());
+                System.err.println("get store storage servers fail, error code: " + trackerClient.getErrorCode());
             } else {
                 System.err.println("store storage servers count: " + storageServers.length);
                 for (int k = 0; k < storageServers.length; k++) {
@@ -98,9 +88,9 @@ public class TestClient {
             startTime = System.currentTimeMillis();
             results = storageClient.upload_file(file_buff, "txt", meta_list);
             System.out.println("upload_file time used: " + (System.currentTimeMillis() - startTime) + " ms");
-  		
+
   		/*
-  		group_name = "";
+          group_name = "";
   		results = client.upload_file(group_name, file_buff, "txt", meta_list);
   		*/
             if (results == null) {
@@ -112,9 +102,9 @@ public class TestClient {
                 System.err.println("group_name: " + group_name + ", remote_filename: " + remote_filename);
                 System.err.println(storageClient.get_file_info(group_name, remote_filename));
 
-                servers = tracker.getFetchStorages(trackerServer, group_name, remote_filename);
+                servers = trackerClient.getFetchServerInfoList(trackerServer, group_name, remote_filename);
                 if (servers == null) {
-                    System.err.println("get storage servers fail, error code: " + tracker.getErrorCode());
+                    System.err.println("get storage servers fail, error code: " + trackerClient.getErrorCode());
                 } else {
                     System.err.println("storage servers count: " + servers.length);
                     for (int k = 0; k < servers.length; k++) {
@@ -281,9 +271,9 @@ public class TestClient {
                 System.err.println("Upload file fail, error no: " + errno);
             }
 
-            storageServer = tracker.getFetchStorage(trackerServer, group_name, remote_filename);
+            StorageServer storageServer = trackerClient.getFetchStorage(trackerServer, group_name, remote_filename);
             if (storageServer == null) {
-                System.out.println("getFetchStorage fail, errno code: " + tracker.getErrorCode());
+                System.out.println("getFetchStorage fail, errno code: " + trackerClient.getErrorCode());
                 return;
             }
   		/* for test only */
@@ -292,7 +282,7 @@ public class TestClient {
             storageServer.close();
   		
   		/* for test only */
-            System.out.println("active test to tracker server: " + ProtoCommon.activeTest(trackerServer.getSocket()));
+            System.out.println("active test to trackerClient server: " + ProtoCommon.activeTest(trackerServer.getSocket()));
 
             trackerServer.close();
         } catch (Exception ex) {

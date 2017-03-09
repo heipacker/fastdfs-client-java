@@ -54,8 +54,8 @@ public class TrackerClient {
      *
      * @return tracker server Socket object, return null if fail
      */
-    public TrackerServer getConnection() throws IOException {
-        return this.trackerGroup.getConnection();
+    public TrackerServer getTrackerServer() throws IOException {
+        return trackerGroup.getTrackerServer();
     }
 
     /**
@@ -65,8 +65,7 @@ public class TrackerClient {
      * @return storage server Socket object, return null if fail
      */
     public StorageServer getStoreStorage(TrackerServer trackerServer) throws IOException {
-        final String groupName = null;
-        return this.getStoreStorage(trackerServer, groupName);
+        return getStoreStorage(trackerServer, null);
     }
 
     /**
@@ -87,7 +86,7 @@ public class TrackerClient {
         Socket trackerSocket;
 
         if (trackerServer == null) {
-            trackerServer = getConnection();
+            trackerServer = getTrackerServer();
             if (trackerServer == null) {
                 return null;
             }
@@ -100,7 +99,8 @@ public class TrackerClient {
         OutputStream out = trackerSocket.getOutputStream();
 
         try {
-            if (groupName == null || groupName.length() == 0) {
+            boolean empty = groupName == null || groupName.length() == 0;
+            if (empty) {
                 cmd = ProtoCommon.TRACKER_PROTO_CMD_SERVICE_QUERY_STORE_WITHOUT_GROUP_ONE;
                 outLen = 0;
             } else {
@@ -110,21 +110,21 @@ public class TrackerClient {
             header = ProtoCommon.packHeader(cmd, outLen, (byte) 0);
             out.write(header);
 
-            if (groupName != null && groupName.length() > 0) {
+            if (!empty) {
                 byte[] bGroupName;
                 byte[] bs;
-                int group_len;
+                int groupLen;
 
                 bs = groupName.getBytes(ClientGlobal.G_CHARSET);
                 bGroupName = new byte[ProtoCommon.FDFS_GROUP_NAME_MAX_LEN];
 
                 if (bs.length <= ProtoCommon.FDFS_GROUP_NAME_MAX_LEN) {
-                    group_len = bs.length;
+                    groupLen = bs.length;
                 } else {
-                    group_len = ProtoCommon.FDFS_GROUP_NAME_MAX_LEN;
+                    groupLen = ProtoCommon.FDFS_GROUP_NAME_MAX_LEN;
                 }
                 Arrays.fill(bGroupName, (byte) 0);
-                System.arraycopy(bs, 0, bGroupName, 0, group_len);
+                System.arraycopy(bs, 0, bGroupName, 0, groupLen);
                 out.write(bGroupName);
             }
 
@@ -171,17 +171,17 @@ public class TrackerClient {
      * @param groupName     the group name to upload file to, can be empty
      * @return storage servers, return null if fail
      */
-    public StorageServer[] getStoreStorages(TrackerServer trackerServer, String groupName) throws IOException {
+    public StorageServer[] getStoreStorageList(TrackerServer trackerServer, String groupName) throws IOException {
         byte[] header;
-        String ip_addr;
+        String ipAddr;
         int port;
         byte cmd;
-        int out_len;
+        int outLen;
         boolean bNewConnection;
         Socket trackerSocket;
 
         if (trackerServer == null) {
-            trackerServer = getConnection();
+            trackerServer = getTrackerServer();
             if (trackerServer == null) {
                 return null;
             }
@@ -191,35 +191,35 @@ public class TrackerClient {
         }
 
         trackerSocket = trackerServer.getSocket();
-        OutputStream out = trackerSocket.getOutputStream();
+        OutputStream outputStream = trackerSocket.getOutputStream();
 
         try {
-            if (groupName == null || groupName.length() == 0) {
+            boolean empty = groupName != null && groupName.length() > 0;
+            if (!empty) {
                 cmd = ProtoCommon.TRACKER_PROTO_CMD_SERVICE_QUERY_STORE_WITHOUT_GROUP_ALL;
-                out_len = 0;
+                outLen = 0;
             } else {
                 cmd = ProtoCommon.TRACKER_PROTO_CMD_SERVICE_QUERY_STORE_WITH_GROUP_ALL;
-                out_len = ProtoCommon.FDFS_GROUP_NAME_MAX_LEN;
+                outLen = ProtoCommon.FDFS_GROUP_NAME_MAX_LEN;
             }
-            header = ProtoCommon.packHeader(cmd, out_len, (byte) 0);
-            out.write(header);
-
-            if (groupName != null && groupName.length() > 0) {
+            header = ProtoCommon.packHeader(cmd, outLen, (byte) 0);
+            outputStream.write(header);
+            if (empty) {
                 byte[] bGroupName;
                 byte[] bs;
-                int group_len;
+                int groupLen;
 
                 bs = groupName.getBytes(ClientGlobal.G_CHARSET);
                 bGroupName = new byte[ProtoCommon.FDFS_GROUP_NAME_MAX_LEN];
 
                 if (bs.length <= ProtoCommon.FDFS_GROUP_NAME_MAX_LEN) {
-                    group_len = bs.length;
+                    groupLen = bs.length;
                 } else {
-                    group_len = ProtoCommon.FDFS_GROUP_NAME_MAX_LEN;
+                    groupLen = ProtoCommon.FDFS_GROUP_NAME_MAX_LEN;
                 }
                 Arrays.fill(bGroupName, (byte) 0);
-                System.arraycopy(bs, 0, bGroupName, 0, group_len);
-                out.write(bGroupName);
+                System.arraycopy(bs, 0, bGroupName, 0, groupLen);
+                outputStream.write(bGroupName);
             }
 
             ProtoCommon.RecvPackageInfo pkgInfo = ProtoCommon.recvPackage(trackerSocket.getInputStream(),
@@ -248,21 +248,21 @@ public class TrackerClient {
                 return null;
             }
 
-            StorageServer[] results = new StorageServer[serverCount];
-            byte store_path = pkgInfo.body[pkgInfo.body.length - 1];
+            StorageServer[] storageServers = new StorageServer[serverCount];
+            byte storePath = pkgInfo.body[pkgInfo.body.length - 1];
             int offset = ProtoCommon.FDFS_GROUP_NAME_MAX_LEN;
 
             for (int i = 0; i < serverCount; i++) {
-                ip_addr = new String(pkgInfo.body, offset, ProtoCommon.FDFS_IPADDR_SIZE - 1).trim();
+                ipAddr = new String(pkgInfo.body, offset, ProtoCommon.FDFS_IPADDR_SIZE - 1).trim();
                 offset += ProtoCommon.FDFS_IPADDR_SIZE - 1;
 
                 port = (int) ProtoCommon.buff2long(pkgInfo.body, offset);
                 offset += ProtoCommon.FDFS_PROTO_PKG_LEN_SIZE;
 
-                results[i] = new StorageServer(ip_addr, port, store_path);
+                storageServers[i] = new StorageServer(ipAddr, port, storePath);
             }
 
-            return results;
+            return storageServers;
         } catch (IOException ex) {
             if (!bNewConnection) {
                 try {
@@ -294,13 +294,13 @@ public class TrackerClient {
      */
     public StorageServer getFetchStorage(TrackerServer trackerServer,
                                          String groupName, String filename) throws IOException {
-        ServerInfo[] servers = this.getStorages(trackerServer, ProtoCommon.TRACKER_PROTO_CMD_SERVICE_QUERY_FETCH_ONE,
+        ServerInfo[] serverInfoList = getServerInfoList(trackerServer, ProtoCommon.TRACKER_PROTO_CMD_SERVICE_QUERY_FETCH_ONE,
                 groupName, filename);
-        if (servers == null) {
+        if (serverInfoList == null || serverInfoList.length == 0) {
             return null;
-        } else {
-            return new StorageServer(servers[0].getIpAddr(), servers[0].getPort(), 0);
         }
+        ServerInfo serverInfo = serverInfoList[0];
+        return new StorageServer(serverInfo.getIpAddr(), serverInfo.getPort(), 0);
     }
 
     /**
@@ -313,13 +313,13 @@ public class TrackerClient {
      */
     public StorageServer getUpdateStorage(TrackerServer trackerServer,
                                           String groupName, String filename) throws IOException {
-        ServerInfo[] servers = this.getStorages(trackerServer, ProtoCommon.TRACKER_PROTO_CMD_SERVICE_QUERY_UPDATE,
+        ServerInfo[] serverInfoList = getServerInfoList(trackerServer, ProtoCommon.TRACKER_PROTO_CMD_SERVICE_QUERY_UPDATE,
                 groupName, filename);
-        if (servers == null) {
+        if (serverInfoList == null || serverInfoList.length == 0) {
             return null;
-        } else {
-            return new StorageServer(servers[0].getIpAddr(), servers[0].getPort(), 0);
         }
+        ServerInfo serverInfo = serverInfoList[0];
+        return new StorageServer(serverInfo.getIpAddr(), serverInfo.getPort(), 0);
     }
 
     /**
@@ -330,10 +330,8 @@ public class TrackerClient {
      * @param filename      filename on storage server
      * @return storage servers, return null if fail
      */
-    public ServerInfo[] getFetchStorages(TrackerServer trackerServer,
-                                         String groupName, String filename) throws IOException {
-        return this.getStorages(trackerServer, ProtoCommon.TRACKER_PROTO_CMD_SERVICE_QUERY_FETCH_ALL,
-                groupName, filename);
+    public ServerInfo[] getFetchServerInfoList(TrackerServer trackerServer, String groupName, String filename) throws IOException {
+        return getServerInfoList(trackerServer, ProtoCommon.TRACKER_PROTO_CMD_SERVICE_QUERY_FETCH_ALL, groupName, filename);
     }
 
     /**
@@ -346,20 +344,20 @@ public class TrackerClient {
      * @param filename      filename on storage server
      * @return storage server Socket object, return null if fail
      */
-    protected ServerInfo[] getStorages(TrackerServer trackerServer,
-                                       byte cmd, String groupName, String filename) throws IOException {
+    protected ServerInfo[] getServerInfoList(TrackerServer trackerServer,
+                                             byte cmd, String groupName, String filename) throws IOException {
         byte[] header;
         byte[] bFileName;
         byte[] bGroupName;
         byte[] bs;
         int len;
-        String ip_addr;
+        String ipAddr;
         int port;
         boolean bNewConnection;
         Socket trackerSocket;
 
         if (trackerServer == null) {
-            trackerServer = getConnection();
+            trackerServer = getTrackerServer();
             if (trackerServer == null) {
                 return null;
             }
@@ -405,17 +403,17 @@ public class TrackerClient {
                 throw new IOException("Invalid body length: " + pkgInfo.body.length);
             }
 
-            int server_count = 1 + (pkgInfo.body.length - ProtoCommon.TRACKER_QUERY_STORAGE_FETCH_BODY_LEN) / (ProtoCommon.FDFS_IPADDR_SIZE - 1);
+            int serverCount = 1 + (pkgInfo.body.length - ProtoCommon.TRACKER_QUERY_STORAGE_FETCH_BODY_LEN) / (ProtoCommon.FDFS_IPADDR_SIZE - 1);
 
-            ip_addr = new String(pkgInfo.body, ProtoCommon.FDFS_GROUP_NAME_MAX_LEN, ProtoCommon.FDFS_IPADDR_SIZE - 1).trim();
+            ipAddr = new String(pkgInfo.body, ProtoCommon.FDFS_GROUP_NAME_MAX_LEN, ProtoCommon.FDFS_IPADDR_SIZE - 1).trim();
             int offset = ProtoCommon.FDFS_GROUP_NAME_MAX_LEN + ProtoCommon.FDFS_IPADDR_SIZE - 1;
 
             port = (int) ProtoCommon.buff2long(pkgInfo.body, offset);
             offset += ProtoCommon.FDFS_PROTO_PKG_LEN_SIZE;
 
-            ServerInfo[] servers = new ServerInfo[server_count];
-            servers[0] = new ServerInfo(ip_addr, port);
-            for (int i = 1; i < server_count; i++) {
+            ServerInfo[] servers = new ServerInfo[serverCount];
+            servers[0] = new ServerInfo(ipAddr, port);
+            for (int i = 1; i < serverCount; i++) {
                 servers[i] = new ServerInfo(new String(pkgInfo.body, offset, ProtoCommon.FDFS_IPADDR_SIZE - 1).trim(), port);
                 offset += ProtoCommon.FDFS_IPADDR_SIZE - 1;
             }
@@ -473,7 +471,7 @@ public class TrackerClient {
             return null;
         }
 
-        return this.getFetchStorages(trackerServer, parts[0], parts[1]);
+        return this.getFetchServerInfoList(trackerServer, parts[0], parts[1]);
     }
 
     /**
@@ -484,16 +482,11 @@ public class TrackerClient {
      */
     public StructGroupStat[] listGroups(TrackerServer trackerServer) throws IOException {
         byte[] header;
-        String ip_addr;
-        int port;
-        byte cmd;
-        int out_len;
         boolean bNewConnection;
-        byte store_path;
         Socket trackerSocket;
 
         if (trackerServer == null) {
-            trackerServer = getConnection();
+            trackerServer = getTrackerServer();
             if (trackerServer == null) {
                 return null;
             }
@@ -573,7 +566,7 @@ public class TrackerClient {
         Socket trackerSocket;
 
         if (trackerServer == null) {
-            trackerServer = getConnection();
+            trackerServer = getTrackerServer();
             if (trackerServer == null) {
                 return null;
             }
@@ -733,7 +726,7 @@ public class TrackerClient {
         InetSocketAddress[] trackerServers = trackerGroup.getTrackerServers();
         for (serverIndex = 0; serverIndex < trackerServers.length; serverIndex++) {
             try {
-                trackerServer = trackerGroup.getConnection(serverIndex);
+                trackerServer = trackerGroup.getTrackerServer(serverIndex);
             } catch (IOException ex) {
                 ex.printStackTrace(System.err);
                 errno = ProtoCommon.ECONNREFUSED;
@@ -772,7 +765,7 @@ public class TrackerClient {
         notFoundCount = 0;
         for (serverIndex = 0; serverIndex < trackerServers.length; serverIndex++) {
             try {
-                trackerServer = trackerGroup.getConnection(serverIndex);
+                trackerServer = trackerGroup.getTrackerServer(serverIndex);
             } catch (IOException ex) {
                 System.err.println("connect to server " + trackerServers[serverIndex].getAddress().getHostAddress() + ":" + trackerServers[serverIndex].getPort() + " fail");
                 ex.printStackTrace(System.err);
