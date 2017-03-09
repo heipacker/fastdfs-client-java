@@ -54,10 +54,10 @@ public class TestAppender1 {
             StorageServer storageServer = null;
 
   		/*
-  		storageServer = tracker.getStoreStorage(trackerServer);
+  		storageServer = tracker.getStorageServer(trackerServer);
   		if (storageServer == null)
   		{
-  			System.out.println("getStoreStorage fail, error code: " + tracker.getErrorCode());
+  			System.out.println("getStorageServer fail, error code: " + tracker.getErrorCode());
   			return;
   		}
   		*/
@@ -80,7 +80,7 @@ public class TestAppender1 {
             System.out.println("file length: " + file_buff.length);
 
             group_name = null;
-            StorageServer[] storageServers = tracker.getStoreStorageList(trackerServer, group_name);
+            StorageServer[] storageServers = tracker.getStorageServerList(trackerServer, group_name);
             if (storageServers == null) {
                 System.err.println("get store storage servers fail, error code: " + tracker.getErrorCode());
             } else {
@@ -105,7 +105,7 @@ public class TestAppender1 {
             } else {
                 System.err.println(client.get_file_info1(appender_file_id));
 
-                servers = tracker.getFetchStorages1(trackerServer, appender_file_id);
+                servers = tracker.getFetchServerInfo1(trackerServer, appender_file_id);
                 if (servers == null) {
                     System.err.println("get storage servers fail, error code: " + tracker.getErrorCode());
                 } else {
@@ -259,9 +259,9 @@ public class TestAppender1 {
                 System.err.println("Upload file fail, error no: " + errno);
             }
 
-            storageServer = tracker.getFetchStorage1(trackerServer, appender_file_id);
+            storageServer = tracker.getFetchStorageServer1(trackerServer, appender_file_id);
             if (storageServer == null) {
-                System.out.println("getFetchStorage fail, errno code: " + tracker.getErrorCode());
+                System.out.println("getFetchStorageServer fail, errno code: " + tracker.getErrorCode());
                 return;
             }
   		/* for test only */

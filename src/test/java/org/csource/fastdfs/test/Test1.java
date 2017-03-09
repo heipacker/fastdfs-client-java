@@ -21,9 +21,9 @@ public class Test1 {
                 return;
             }
 
-            StorageServer ss = tc.getStoreStorage(ts);
+            StorageServer ss = tc.getStorageServer(ts);
             if (ss == null) {
-                System.out.println("getStoreStorage return null");
+                System.out.println("getStorageServer return null");
             }
 
             StorageClient1 sc1 = new StorageClient1(ts, ss);

@@ -56,10 +56,10 @@ public class TestAppender {
             StorageServer storageServer = null;
 
   		/*
-  		storageServer = tracker.getStoreStorage(trackerServer);
+  		storageServer = tracker.getStorageServer(trackerServer);
   		if (storageServer == null)
   		{
-  			System.out.println("getStoreStorage fail, error code: " + tracker.getErrorCode());
+  			System.out.println("getStorageServer fail, error code: " + tracker.getErrorCode());
   			return;
   		}
   		*/
@@ -82,7 +82,7 @@ public class TestAppender {
             System.out.println("file length: " + file_buff.length);
 
             group_name = null;
-            StorageServer[] storageServers = tracker.getStoreStorageList(trackerServer, group_name);
+            StorageServer[] storageServers = tracker.getStorageServerList(trackerServer, group_name);
             if (storageServers == null) {
                 System.err.println("get store storage servers fail, error code: " + tracker.getErrorCode());
             } else {
@@ -279,9 +279,9 @@ public class TestAppender {
                 System.err.println("Upload file fail, error no: " + errno);
             }
 
-            storageServer = tracker.getFetchStorage(trackerServer, group_name, remote_filename);
+            storageServer = tracker.getFetchStorageServer(trackerServer, group_name, remote_filename);
             if (storageServer == null) {
-                System.out.println("getFetchStorage fail, errno code: " + tracker.getErrorCode());
+                System.out.println("getFetchStorageServer fail, errno code: " + tracker.getErrorCode());
                 return;
             }
   		/* for test only */

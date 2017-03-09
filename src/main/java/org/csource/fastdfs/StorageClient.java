@@ -1432,9 +1432,9 @@ public class StorageClient {
             return false;
         } else {
             TrackerClient tracker = new TrackerClient();
-            this.storageServer = tracker.getStoreStorage(this.trackerServer, groupName);
+            this.storageServer = tracker.getStorageServer(this.trackerServer, groupName);
             if (this.storageServer == null) {
-                throw new FastDFSClientException("getStoreStorage fail, errno code: " + tracker.getErrorCode());
+                throw new FastDFSClientException("getStorageServer fail, errno code: " + tracker.getErrorCode());
             }
             return true;
         }
@@ -1452,9 +1452,9 @@ public class StorageClient {
             return false;
         } else {
             TrackerClient tracker = new TrackerClient();
-            this.storageServer = tracker.getFetchStorage(this.trackerServer, groupName, remoteFileName);
+            this.storageServer = tracker.getFetchStorageServer(this.trackerServer, groupName, remoteFileName);
             if (this.storageServer == null) {
-                throw new FastDFSClientException("getStoreStorage fail, errno code: " + tracker.getErrorCode());
+                throw new FastDFSClientException("getStorageServer fail, errno code: " + tracker.getErrorCode());
             }
             return true;
         }
@@ -1472,9 +1472,9 @@ public class StorageClient {
             return false;
         } else {
             TrackerClient tracker = new TrackerClient();
-            this.storageServer = tracker.getUpdateStorage(this.trackerServer, groupName, remoteFileName);
+            this.storageServer = tracker.getUpdateStorageServer(this.trackerServer, groupName, remoteFileName);
             if (this.storageServer == null) {
-                throw new FastDFSClientException("getStoreStorage fail, errno code: " + tracker.getErrorCode());
+                throw new FastDFSClientException("getStorageServer fail, errno code: " + tracker.getErrorCode());
             }
             return true;
         }

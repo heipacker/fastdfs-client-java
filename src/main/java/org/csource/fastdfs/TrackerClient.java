@@ -64,8 +64,8 @@ public class TrackerClient {
      * @param trackerServer the tracker server
      * @return storage server Socket object, return null if fail
      */
-    public StorageServer getStoreStorage(TrackerServer trackerServer) throws IOException {
-        return getStoreStorage(trackerServer, null);
+    public StorageServer getStorageServer(TrackerServer trackerServer) throws IOException {
+        return getStorageServer(trackerServer, null);
     }
 
     /**
@@ -75,7 +75,7 @@ public class TrackerClient {
      * @param groupName     the group name to upload file to, can be empty
      * @return storage server object, return null if fail
      */
-    public StorageServer getStoreStorage(TrackerServer trackerServer, String groupName) throws IOException {
+    public StorageServer getStorageServer(TrackerServer trackerServer, String groupName) throws IOException {
         byte[] header;
         String ipAddr;
         int port;
@@ -171,7 +171,7 @@ public class TrackerClient {
      * @param groupName     the group name to upload file to, can be empty
      * @return storage servers, return null if fail
      */
-    public StorageServer[] getStoreStorageList(TrackerServer trackerServer, String groupName) throws IOException {
+    public StorageServer[] getStorageServerList(TrackerServer trackerServer, String groupName) throws IOException {
         byte[] header;
         String ipAddr;
         int port;
@@ -292,8 +292,8 @@ public class TrackerClient {
      * @param filename      filename on storage server
      * @return storage server Socket object, return null if fail
      */
-    public StorageServer getFetchStorage(TrackerServer trackerServer,
-                                         String groupName, String filename) throws IOException {
+    public StorageServer getFetchStorageServer(TrackerServer trackerServer,
+                                               String groupName, String filename) throws IOException {
         ServerInfo[] serverInfoList = getServerInfoList(trackerServer, ProtoCommon.TRACKER_PROTO_CMD_SERVICE_QUERY_FETCH_ONE,
                 groupName, filename);
         if (serverInfoList == null || serverInfoList.length == 0) {
@@ -311,8 +311,8 @@ public class TrackerClient {
      * @param filename      filename on storage server
      * @return storage server Socket object, return null if fail
      */
-    public StorageServer getUpdateStorage(TrackerServer trackerServer,
-                                          String groupName, String filename) throws IOException {
+    public StorageServer getUpdateStorageServer(TrackerServer trackerServer,
+                                                String groupName, String filename) throws IOException {
         ServerInfo[] serverInfoList = getServerInfoList(trackerServer, ProtoCommon.TRACKER_PROTO_CMD_SERVICE_QUERY_UPDATE,
                 groupName, filename);
         if (serverInfoList == null || serverInfoList.length == 0) {
@@ -447,14 +447,14 @@ public class TrackerClient {
      * @param file_id       the file id(including group name and filename)
      * @return storage server Socket object, return null if fail
      */
-    public StorageServer getFetchStorage1(TrackerServer trackerServer, String file_id) throws IOException {
+    public StorageServer getFetchStorageServer1(TrackerServer trackerServer, String file_id) throws IOException {
         String[] parts = new String[2];
         errno = StorageClient1.split_file_id(file_id, parts);
         if (errno != 0) {
             return null;
         }
 
-        return this.getFetchStorage(trackerServer, parts[0], parts[1]);
+        return this.getFetchStorageServer(trackerServer, parts[0], parts[1]);
     }
 
     /**
@@ -464,7 +464,7 @@ public class TrackerClient {
      * @param file_id       the file id(including group name and filename)
      * @return storage servers, return null if fail
      */
-    public ServerInfo[] getFetchStorages1(TrackerServer trackerServer, String file_id) throws IOException {
+    public ServerInfo[] getFetchServerInfo1(TrackerServer trackerServer, String file_id) throws IOException {
         String[] parts = new String[2];
         errno = StorageClient1.split_file_id(file_id, parts);
         if (errno != 0) {

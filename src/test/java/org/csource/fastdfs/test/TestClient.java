@@ -74,7 +74,7 @@ public class TestClient {
             System.out.println("file length: " + file_buff.length);
 
             group_name = null;
-            StorageServer[] storageServers = trackerClient.getStoreStorageList(trackerServer, group_name);
+            StorageServer[] storageServers = trackerClient.getStorageServerList(trackerServer, group_name);
             if (storageServers == null) {
                 System.err.println("get store storage servers fail, error code: " + trackerClient.getErrorCode());
             } else {
@@ -82,17 +82,13 @@ public class TestClient {
                 for (int k = 0; k < storageServers.length; k++) {
                     System.err.println((k + 1) + ". " + storageServers[k].getInetSocketAddress().getAddress().getHostAddress() + ":" + storageServers[k].getInetSocketAddress().getPort());
                 }
-                System.err.println("");
+                System.err.println();
             }
 
             startTime = System.currentTimeMillis();
             results = storageClient.upload_file(file_buff, "txt", meta_list);
             System.out.println("upload_file time used: " + (System.currentTimeMillis() - startTime) + " ms");
 
-  		/*
-          group_name = "";
-  		results = client.upload_file(group_name, file_buff, "txt", meta_list);
-  		*/
             if (results == null) {
                 System.err.println("upload file fail, error code: " + storageClient.getErrorCode());
                 return;
@@ -110,7 +106,7 @@ public class TestClient {
                     for (int k = 0; k < servers.length; k++) {
                         System.err.println((k + 1) + ". " + servers[k].getIpAddr() + ":" + servers[k].getPort());
                     }
-                    System.err.println("");
+                    System.err.println();
                 }
 
                 meta_list = new NameValuePair[4];
@@ -271,9 +267,9 @@ public class TestClient {
                 System.err.println("Upload file fail, error no: " + errno);
             }
 
-            StorageServer storageServer = trackerClient.getFetchStorage(trackerServer, group_name, remote_filename);
+            StorageServer storageServer = trackerClient.getFetchStorageServer(trackerServer, group_name, remote_filename);
             if (storageServer == null) {
-                System.out.println("getFetchStorage fail, errno code: " + trackerClient.getErrorCode());
+                System.out.println("getFetchStorageServer fail, errno code: " + trackerClient.getErrorCode());
                 return;
             }
   		/* for test only */
