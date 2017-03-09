@@ -9,18 +9,16 @@
 package org.csource.common;
 
 /**
-* My Exception
-* @author Happy Fish / YuQing
-* @version Version 1.0
-*/
-public class MyException extends Exception
-{
-    public MyException()
-    {
+ * My Exception
+ *
+ * @author Happy Fish / YuQing
+ * @version Version 1.0
+ */
+public class FastDFSClientException extends Exception {
+    public FastDFSClientException() {
     }
-    
-    public MyException(String message)
-    {
-    		super(message);
+
+    public FastDFSClientException(String message) {
+        super(message);
     }
 }
